@@ -8,13 +8,13 @@
 
     <TextView
         android:id="@+id/keyText"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="12dp"
         android:text="@string/key"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/midiChannelText" />
 
     <Spinner
         android:id="@+id/keySpinner"
@@ -28,7 +28,7 @@
         android:id="@+id/progressionText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         android:layout_marginTop="16dp"
         android:text="@string/progression"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -41,4 +41,54 @@
         android:layout_marginStart="16dp"
         app:layout_constraintBaseline_toBaselineOf="@+id/progressionText"
         app:layout_constraintStart_toEndOf="@+id/progressionText" />
+
+    <TextView
+        android:id="@+id/midiReceiverText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/midi_receiver"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/midiReceiverSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/midiReceiverText"
+        app:layout_constraintStart_toEndOf="@+id/midiReceiverText" />
+
+    <TextView
+        android:id="@+id/midiChannelText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/midi_channel"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/midiReceiverText" />
+
+    <Spinner
+        android:id="@+id/midiChannelSpinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:entries="@array/midi_channels"
+        app:layout_constraintBaseline_toBaselineOf="@+id/midiChannelText"
+        app:layout_constraintStart_toEndOf="@+id/midiChannelText" />
+
+    <ToggleButton
+        android:id="@+id/playButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="40dp"
+        android:text="ToggleButton"
+        android:textOff="@string/play"
+        android:textOn="@string/pause"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressionText" />
+
 </android.support.constraint.ConstraintLayout>
