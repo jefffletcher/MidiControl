@@ -85,16 +85,16 @@ public class MainActivity extends Activity {
                         // Play
                         if (midiReceiverSelector != null) {
                             MidiReceiver receiver = midiReceiverSelector.getReceiver();
-                            if (receiver != null) {
+//                            if (receiver != null) {
                                 sequencer = new MidiSequencer(receiver, mChannel);
                                 sequencer.start();
-                            }
+//                            }
                         }
                     } else {
                         // Pause
-                        if (sequencer != null) {
+//                        if (sequencer != null) {
                             sequencer.stop();
-                        }
+//                        }
                     }
                 }
             });

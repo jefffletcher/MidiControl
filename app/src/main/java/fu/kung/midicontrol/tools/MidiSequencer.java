@@ -1,6 +1,9 @@
 package fu.kung.midicontrol.tools;
 
 import android.media.midi.MidiReceiver;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.util.Log;
 
 import java.io.IOException;
 
@@ -8,69 +11,82 @@ import java.io.IOException;
  * MIDI sequencer.
  */
 
-public class MidiSequencer implements Runnable {
+public class MidiSequencer {
     private static final String TAG = "MidiSequencer";
     private static final int MIDDLE_C = 60;
+    private static final long NANOS_PER_SECOND = 1000000000L;
 
     private MidiReceiver receiver;
-    private int beatsPerMinute = 60;
+    private int beatsPerMinute = 250;
 
-    private byte[] accentOnBuffer;
-    private byte[] accentOffBuffer;
-    private byte[] nonAccentOnBuffer;
-    private byte[] nonAccentOffBuffer;
+    private SequencerEvent[] events;
+    private int tick = 0;
 
     private boolean isRunning = false;
 
+    private HandlerThread handlerThread;
+    private Handler handler;
+
+    private Runnable eventProcessor = new Runnable() {
+        @Override
+        public void run() {
+            if (events[tick] != null) {
+                try {
+                    playNote(events[tick]);
+                } catch (IOException e) {
+                    Log.e(TAG, String.format("Error running command %s", events[tick]));
+                }
+            }
+            tick += 1;
+            tick %= 16;
+
+            if (isRunning) {
+                processEvent();
+            }
+        }
+    };
+
     public MidiSequencer(MidiReceiver receiver, int channel) {
         this.receiver = receiver;
-        accentOnBuffer = command(MidiConstants.STATUS_NOTE_ON + channel, MIDDLE_C, 127);
-        accentOffBuffer = command(MidiConstants.STATUS_NOTE_ON + channel, MIDDLE_C, 0);
-        nonAccentOnBuffer = command(MidiConstants.STATUS_NOTE_ON + channel, MIDDLE_C, 90);
-        nonAccentOffBuffer = command(MidiConstants.STATUS_NOTE_ON + channel, MIDDLE_C, 0);
+        handlerThread = new HandlerThread("SequencerHandlerThread");
+        events = new SequencerEvent[16];
+        tick = 0;
+
+        events[0] = new SequencerEvent(channel, MIDDLE_C, 127);
+        events[4] = new SequencerEvent(channel, MIDDLE_C, 60);
+        events[8] = new SequencerEvent(channel, MIDDLE_C, 60);
+        events[12] = new SequencerEvent(channel, MIDDLE_C, 60);
+    }
+
+    private void processEvent() {
+        handler.postDelayed(eventProcessor, 60000 / (beatsPerMinute * 4));
     }
 
     public void start() {
         isRunning = true;
-        new Thread(this).start();
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
+        processEvent();
     }
 
     public void stop() {
         isRunning = false;
-    }
-
-    @Override
-    public void run() {
-        long startTime = System.currentTimeMillis();
-
+        handlerThread.quit();
         try {
-            while (isRunning) {
-                runCommand(accentOnBuffer);
-                Thread.sleep(100);
-                runCommand(accentOffBuffer);
-                Thread.sleep(getTimeTillNextBeat(startTime));
-                for (int i = 0; i < 3; i++) {
-                    runCommand(nonAccentOnBuffer);
-                    Thread.sleep(100);
-                    runCommand(nonAccentOffBuffer);
-                    Thread.sleep(getTimeTillNextBeat(startTime));
-                }
-            }
-        } catch (InterruptedException e) {
-            isRunning = false;
+            receiver.flush();
         } catch (IOException e) {
-            isRunning = false;
+            Log.e(TAG, "Error flushing MIDI receiver");
         }
     }
 
-    private void runCommand(byte[] command) throws IOException {
-        receiver.send(command, 0, 3, System.nanoTime());
-    }
-
-    private long getTimeTillNextBeat(long startTime) {
-        long position = System.currentTimeMillis() - startTime;
-        long timeRemaining = position % 500; // assuming 120bpm (500ms per beat)
-        return timeRemaining;
+    private void playNote(SequencerEvent event) throws IOException {
+        long now = System.nanoTime();
+        receiver.send(
+                command(MidiConstants.STATUS_NOTE_ON + event.channel, event.data1, event.data2),
+                0, 3, now);
+        receiver.send(
+                command(MidiConstants.STATUS_NOTE_OFF + event.channel, event.data1, 0),
+                0, 3, (long) (now + (.1 * NANOS_PER_SECOND))); // TODO: Note duration.
     }
 
     private byte[] command(int status, int data1, int data2) {
@@ -79,5 +95,17 @@ public class MidiSequencer implements Runnable {
         buffer[1] = (byte) data1;
         buffer[2] = (byte) data2;
         return buffer;
+    }
+
+    class SequencerEvent {
+        int channel;
+        int data1;
+        int data2;
+
+        SequencerEvent(int channel, int data1, int data2) {
+            this.channel = channel;
+            this.data1 = data1;
+            this.data2 = data2;
+        }
     }
 }
