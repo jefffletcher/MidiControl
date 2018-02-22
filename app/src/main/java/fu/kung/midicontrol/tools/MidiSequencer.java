@@ -45,6 +45,7 @@ public class MidiSequencer {
             }
         }
     };
+    private int bpm;
 
     public MidiSequencer(MidiReceiver receiver, int channel) {
         this.receiver = receiver;
@@ -95,6 +96,10 @@ public class MidiSequencer {
         buffer[1] = (byte) data1;
         buffer[2] = (byte) data2;
         return buffer;
+    }
+
+    public void setBeatsPerMinute(int beatsPerMinute) {
+        this.beatsPerMinute = beatsPerMinute;
     }
 
     class SequencerEvent {

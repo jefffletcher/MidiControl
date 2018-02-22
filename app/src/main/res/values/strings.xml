@@ -6,6 +6,7 @@
     <string name="midi_channel">MIDI Channel</string>
     <string name="play">Play</string>
     <string name="pause">Pause</string>
+    <string name="bpm">BPM</string>
     <string-array name="midi_channels">
         <item>"1"</item>
         <item>"2"</item>

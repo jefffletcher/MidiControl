@@ -5,31 +5,30 @@ import android.content.pm.PackageManager;
 import android.media.midi.MidiManager;
 import android.media.midi.MidiReceiver;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import java.io.IOException;
-
 import fu.kung.midicontrol.theory.ChordProgression;
 import fu.kung.midicontrol.theory.Note;
-import fu.kung.midicontrol.tools.MidiConstants;
 import fu.kung.midicontrol.tools.MidiInputPortSelector;
 import fu.kung.midicontrol.tools.MidiSequencer;
 
 public class MainActivity extends Activity {
     private static final String TAG = "MidiControl";
-    private static final int DEFAULT_VELOCITY = 64;
-    private static final int MIDDLE_C = 60;
+    private static final int INITIAL_BPM = 240;
+
+    private SeekBar bpmSeekBar;
+    private TextView bpmTextValue;
 
     private MidiInputPortSelector midiReceiverSelector;
     private int mChannel; // ranges from 0 to 15
-    private byte[] midiByteBuffer = new byte[3];
     private MidiSequencer sequencer;
 
     public class ChannelSpinnerActivity implements AdapterView.OnItemSelectedListener {
@@ -65,19 +64,32 @@ public class MainActivity extends Activity {
             ((Spinner) findViewById(R.id.midiChannelSpinner))
                     .setOnItemSelectedListener(new ChannelSpinnerActivity());
 
+            bpmTextValue = findViewById(R.id.bpmTextValue);
+            bpmTextValue.setText("" + INITIAL_BPM);
+            bpmSeekBar = findViewById(R.id.bpmSeekBar);
+            bpmSeekBar.setMin(15);
+            bpmSeekBar.setMax(300);
+            bpmSeekBar.setProgress(INITIAL_BPM);
+            bpmSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int value, boolean b) {
+                    if (sequencer != null) {
+                        bpmTextValue.setText("" + value);
+                        sequencer.setBeatsPerMinute(value);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                }
+            });
+
             ToggleButton playButton = findViewById(R.id.playButton);
-//            playButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//                @Override
-//                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                    if (isChecked) {
-//                        // Play
-//                        noteOn(mChannel, MIDDLE_C, DEFAULT_VELOCITY);
-//                    } else {
-//                        // Pause
-//                        noteOff(mChannel, MIDDLE_C, DEFAULT_VELOCITY);
-//                    }
-//                }
-//            });
             playButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -85,16 +97,17 @@ public class MainActivity extends Activity {
                         // Play
                         if (midiReceiverSelector != null) {
                             MidiReceiver receiver = midiReceiverSelector.getReceiver();
-//                            if (receiver != null) {
+                            if (receiver != null) {
                                 sequencer = new MidiSequencer(receiver, mChannel);
+                                sequencer.setBeatsPerMinute(bpmSeekBar.getProgress());
                                 sequencer.start();
-//                            }
+                            }
                         }
                     } else {
                         // Pause
-//                        if (sequencer != null) {
+                        if (sequencer != null) {
                             sequencer.stop();
-//                        }
+                        }
                     }
                 }
             });
@@ -107,35 +120,6 @@ public class MainActivity extends Activity {
         MidiManager midiManager = (MidiManager) getSystemService(MIDI_SERVICE);
         midiReceiverSelector =
                 new MidiInputPortSelector(midiManager, this, R.id.midiReceiverSpinner);
-    }
-
-    private void noteOff(int channel, int pitch, int velocity) {
-        midiCommand(MidiConstants.STATUS_NOTE_OFF + channel, pitch, velocity);
-    }
-
-    private void noteOn(int channel, int pitch, int velocity) {
-        midiCommand(MidiConstants.STATUS_NOTE_ON + channel, pitch, velocity);
-    }
-
-    private void midiCommand(int status, int data1, int data2) {
-        midiByteBuffer[0] = (byte) status;
-        midiByteBuffer[1] = (byte) data1;
-        midiByteBuffer[2] = (byte) data2;
-        midiSend(midiByteBuffer, 3, System.nanoTime());
-    }
-
-    private void midiSend(byte[] buffer, int count, long timestamp) {
-        if (midiReceiverSelector != null) {
-            try {
-                // send event immediately
-                MidiReceiver receiver = midiReceiverSelector.getReceiver();
-                if (receiver != null) {
-                    receiver.send(buffer, 0, count, timestamp);
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "mKeyboardReceiverSelector.send() failed " + e);
-            }
-        }
     }
 
     @Override
