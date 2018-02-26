@@ -1,4 +1,4 @@
-package fu.kung.midicontrol.tools;
+package fu.kung.midicontrol.midi;
 
 import android.media.midi.MidiReceiver;
 import android.os.Handler;

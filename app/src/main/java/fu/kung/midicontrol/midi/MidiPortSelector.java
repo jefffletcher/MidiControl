@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package fu.kung.midicontrol.tools;
+package fu.kung.midicontrol.midi;
 
 import android.app.Activity;
 import android.media.midi.MidiDeviceInfo;
 import android.media.midi.MidiDeviceStatus;
 import android.media.midi.MidiManager;
 import android.media.midi.MidiManager.DeviceCallback;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;

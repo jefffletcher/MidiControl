@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fu.kung.midicontrol.tools;
+package fu.kung.midicontrol.midi;
 
 import android.app.Activity;
 import android.media.midi.MidiDevice;

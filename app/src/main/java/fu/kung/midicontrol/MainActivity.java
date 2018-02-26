@@ -17,8 +17,8 @@ import android.widget.ToggleButton;
 
 import fu.kung.midicontrol.theory.ChordProgression;
 import fu.kung.midicontrol.theory.Note;
-import fu.kung.midicontrol.tools.MidiInputPortSelector;
-import fu.kung.midicontrol.tools.MidiSequencer;
+import fu.kung.midicontrol.midi.MidiInputPortSelector;
+import fu.kung.midicontrol.midi.MidiSequencer;
 
 public class MainActivity extends Activity {
     private static final String TAG = "MidiControl";
