@@ -42,10 +42,23 @@ public enum Note {
         return flatName;
     }
 
+    public int getValue() {
+        return value;
+    }
+
     // TODO: Populating UI Spinner with Note.values(), should be using
     // Note.getCommonNames() or similar
     @Override
     public String toString() {
         return this.commonName;
+    }
+
+    public static Note getNote(int value) {
+        for (Note note : values()) {
+            if (note.getValue() == value) {
+                return note;
+            }
+        }
+        throw new IllegalArgumentException(String.format("No note for value %d", value));
     }
 }

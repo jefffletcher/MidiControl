@@ -23,6 +23,8 @@ import fu.kung.midicontrol.midi.MidiSequencer;
 public class MainActivity extends Activity {
     private static final String TAG = "MidiControl";
     private static final int INITIAL_BPM = 240;
+    private static final int MIN_BPM = 15;
+    private static final int MAX_BPM = 300;
 
     private SeekBar bpmSeekBar;
     private TextView bpmTextValue;
@@ -67,8 +69,8 @@ public class MainActivity extends Activity {
             bpmTextValue = findViewById(R.id.bpmTextValue);
             bpmTextValue.setText("" + INITIAL_BPM);
             bpmSeekBar = findViewById(R.id.bpmSeekBar);
-            bpmSeekBar.setMin(15);
-            bpmSeekBar.setMax(300);
+            bpmSeekBar.setMin(MIN_BPM);
+            bpmSeekBar.setMax(MAX_BPM + MIN_BPM);
             bpmSeekBar.setProgress(INITIAL_BPM);
             bpmSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 

@@ -1,21 +1,31 @@
 package fu.kung.midicontrol.theory;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Chord progressions.
  * https://sourceforge.net/p/jchordbox/code/HEAD/tree/trunk/src/java/main/org/jchordbox/song/models/Chord.java
  */
 public enum ChordProgression {
-    CP_1_4_5("I IV V"),
-    CP_6_2_5_1("vi ii V I");
+    CP_1_4_5("I IV V", Arrays.asList(Chord.MAJOR_I, Chord.MAJOR_IV, Chord.MAJOR_V)),
+    CP_6_2_5_1("vi ii V I",
+            Arrays.asList(Chord.MAJOR_VI, Chord.MAJOR_II, Chord.MAJOR_V, Chord.MAJOR_I));
 
-    private final String name;
+    private final String text;
+    private final List<Chord> chords;
 
-    ChordProgression(String name) {
-        this.name = name;
+    ChordProgression(String text, List<Chord> chords) {
+        this.text = text;
+        this.chords = chords;
+    }
+
+    public List<Chord> getChords() {
+        return chords;
     }
 
     @Override
     public String toString() {
-        return name;
+        return text;
     }
 }
