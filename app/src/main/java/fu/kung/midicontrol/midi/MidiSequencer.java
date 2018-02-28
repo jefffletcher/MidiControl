@@ -6,6 +6,13 @@ import android.os.HandlerThread;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import fu.kung.midicontrol.theory.Note;
+import fu.kung.midicontrol.theory.Resolver;
 
 /**
  * MIDI sequencer.
@@ -17,9 +24,11 @@ public class MidiSequencer {
     private static final long NANOS_PER_SECOND = 1000000000L;
 
     private MidiReceiver receiver;
+    private int channel;
     private int beatsPerMinute = 250;
+    private List<List<Note>> notes;
 
-    private SequencerEvent[] events;
+    private List<List<SequencerEvent>> events;
     private int tick = 0;
 
     private boolean isRunning = false;
@@ -30,33 +39,29 @@ public class MidiSequencer {
     private Runnable eventProcessor = new Runnable() {
         @Override
         public void run() {
-            if (events[tick] != null) {
-                try {
-                    playNote(events[tick]);
-                } catch (IOException e) {
-                    Log.e(TAG, String.format("Error running command %s", events[tick]));
+            if (events.get(tick).size() != 0) {
+                for (SequencerEvent event : events.get(tick)) {
+                    try {
+                        playNote(event);
+                    } catch (IOException e) {
+                        Log.e(TAG, String.format("Error running command %s", event));
+                    }
                 }
             }
             tick += 1;
-            tick %= 16;
+            tick %= events.size();
 
             if (isRunning) {
                 processEvent();
             }
         }
     };
-    private int bpm;
 
     public MidiSequencer(MidiReceiver receiver, int channel) {
         this.receiver = receiver;
+        this.channel = channel;
         handlerThread = new HandlerThread("SequencerHandlerThread");
-        events = new SequencerEvent[16];
         tick = 0;
-
-        events[0] = new SequencerEvent(channel, MIDDLE_C, 127);
-        events[4] = new SequencerEvent(channel, MIDDLE_C, 60);
-        events[8] = new SequencerEvent(channel, MIDDLE_C, 60);
-        events[12] = new SequencerEvent(channel, MIDDLE_C, 60);
     }
 
     private void processEvent() {
@@ -64,10 +69,44 @@ public class MidiSequencer {
     }
 
     public void start() {
+        initializeEvents();
         isRunning = true;
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
         processEvent();
+    }
+
+    private void initializeEvents() {
+        if (notes == null) {
+            events = new ArrayList<>(16);
+            for (int i = 0; i < 16; i++) {
+                events.add(Collections.EMPTY_LIST);
+            }
+
+            // Metronome
+            events.set(0, Arrays.asList(new SequencerEvent(channel, MIDDLE_C, 127)));
+            events.set(4, Arrays.asList(new SequencerEvent(channel, MIDDLE_C, 60)));
+            events.set(8, Arrays.asList(new SequencerEvent(channel, MIDDLE_C, 60)));
+            events.set(12, Arrays.asList(new SequencerEvent(channel, MIDDLE_C, 60)));
+            return;
+        }
+
+        int numEvents = notes.size() * 4;
+        events = new ArrayList<>(numEvents);
+        for (int i = 0; i < numEvents; i++) {
+            events.add(Collections.EMPTY_LIST);
+        }
+
+        int eventPointer = 0;
+        for (List<Note> chord : notes) {
+            ArrayList<SequencerEvent> tickEvents = new ArrayList<>();
+            for (Note note : chord) {
+                tickEvents.add(new SequencerEvent(channel, Resolver.getMidiNote(note), 90));
+            }
+            events.set(eventPointer, tickEvents);
+            eventPointer += 4;
+        }
+
     }
 
     public void stop() {
@@ -100,6 +139,10 @@ public class MidiSequencer {
 
     public void setBeatsPerMinute(int beatsPerMinute) {
         this.beatsPerMinute = beatsPerMinute;
+    }
+
+    public void setNotes(List<List<Note>> notes) {
+        this.notes = notes;
     }
 
     class SequencerEvent {

@@ -83,12 +83,12 @@
         android:id="@+id/playButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="32dp"
         android:textOff="@string/play"
         android:textOn="@string/pause"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bpmSeekBar" />
+        app:layout_constraintTop_toBottomOf="@+id/chordsText" />
 
     <TextView
         android:id="@+id/bpmText"
@@ -116,5 +116,14 @@
         android:layout_marginStart="16dp"
         app:layout_constraintBaseline_toBaselineOf="@+id/bpmText"
         app:layout_constraintStart_toEndOf="@+id/bpmText" />
+
+    <TextView
+        android:id="@+id/chordsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bpmSeekBar" />
 
 </android.support.constraint.ConstraintLayout>

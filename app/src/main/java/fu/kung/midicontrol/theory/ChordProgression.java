@@ -24,6 +24,20 @@ public enum ChordProgression {
         return chords;
     }
 
+    public String getText() {
+        return text;
+    }
+
+    public static ChordProgression getChordProgression(int text) {
+        for (ChordProgression chordProgression : values()) {
+            if (chordProgression.getText().equals(text)) {
+                return chordProgression;
+            }
+        }
+        throw new IllegalArgumentException(
+                String.format("No chord progression defined for %d", text));
+    }
+
     @Override
     public String toString() {
         return text;

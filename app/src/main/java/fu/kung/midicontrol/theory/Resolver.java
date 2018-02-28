@@ -64,4 +64,11 @@ public class Resolver {
         }
         return total % 12;
     }
+
+    //      1,  2,  3,  4,  5,  6,  7,   8
+    // C - 24, 36, 48, 60, 72, 84, 96, 108
+    public static int getMidiNote(Note note) {
+        int octave = 4;
+        return ((octave + 1) * 12) + note.getValue();
+    }
 }

@@ -67,4 +67,20 @@ public class ResolverTest {
         assertEquals("F#m Bm E A", Resolver.getChordText(Note.A, ChordProgression.CP_6_2_5_1));
         assertEquals("G#m C#m F# B", Resolver.getChordText(Note.B, ChordProgression.CP_6_2_5_1));
     }
+
+    @Test
+    public void testGetMidiNote() {
+        assertEquals(60, Resolver.getMidiNote(Note.C));
+        assertEquals(61, Resolver.getMidiNote(Note.C_SHARP));
+        assertEquals(62, Resolver.getMidiNote(Note.D));
+        assertEquals(63, Resolver.getMidiNote(Note.E_FLAT));
+        assertEquals(64, Resolver.getMidiNote(Note.E));
+        assertEquals(65, Resolver.getMidiNote(Note.F));
+        assertEquals(66, Resolver.getMidiNote(Note.F_SHARP));
+        assertEquals(67, Resolver.getMidiNote(Note.G));
+        assertEquals(68, Resolver.getMidiNote(Note.G_SHARP));
+        assertEquals(69, Resolver.getMidiNote(Note.A));
+        assertEquals(70, Resolver.getMidiNote(Note.B_FLAT));
+        assertEquals(71, Resolver.getMidiNote(Note.B));
+    }
 }
